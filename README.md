@@ -4,4 +4,12 @@ This software created a MultiLayerPerceptron to fit a multi-class classification
 This software extract csv file created by using Weather Labeling Web App; it will be downloadable from url https://github.com/CCMMMA/Weather-Labeling-Web-Application
 
 Configuration
-gi
+
+1. git clone https://github.com/rosario-riccio/mlpWeatherLabeling.git
+2. cd Weather-Labeling-Web-Application/
+3. virtualenv venv
+4. source venv/bin/activate
+5. pip install --upgrade pip
+6. pip install -r requirements.txt
+7. insert your path where there are csv files into variable src in mlMain.py: src = ""
+8. python mlMain.py
