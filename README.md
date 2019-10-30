@@ -11,5 +11,7 @@ Configuration
 5. source venv/bin/activate
 6. pip install --upgrade pip
 7. pip install -r requirements.txt
-8. insert your path where there are csv files into variable src in mlMain.py: src = ""
-9. python mlMain.py
+8. insert your path where there are csv files into variable src for training set in mlMain1.py and mlMain2.py: src = ""
+9. insert your path where there are csv files into variable src for prediction set in mlMain1.py and mlMain2.py: src1 = ""
+10. python mlMain1.py : this version create a sample from dataset of training of 50%; another it can apply specific weight to each class
+11. python mlMain2.py this version use a oversampling RandomOverSampler by using library imblearn (python's component)
