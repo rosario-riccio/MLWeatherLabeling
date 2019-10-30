@@ -1,5 +1,5 @@
 """This file contains the class ManageDB to manage every db operations"""
-
+import sys
 from pymongo import MongoClient
 
 class ManageDB(object):
