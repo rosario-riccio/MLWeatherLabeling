@@ -45,16 +45,16 @@ def main():
         model = Sequential()
 
         model.add(Dense(100, input_dim=10, activation="relu",kernel_initializer = 'uniform'))
-        model.add(Dropout(rate = 0.1))
+        model.add(Dropout(rate = 0.2))
 
         # Adding the second hidden layer
         model.add(Dense(activation='relu',units=100,kernel_initializer='uniform'))
         # Adding the output layer
-        model.add(Dropout(rate = 0.1))
+        model.add(Dropout(rate = 0.2))
         # # Adding the third hidden layer
         model.add(Dense(activation='relu', units=100, kernel_initializer='uniform'))
         # # Adding the output layer
-        model.add(Dropout(rate=0.1))
+        model.add(Dropout(rate=0.2))
 
         model.add(Dense(countLabel, activation="softmax"))
 
@@ -66,7 +66,6 @@ def main():
             print(all_files)
             df_from_each_file = (pd.read_csv(f,usecols=["T2C","SLP", "WSPD10","WDIR10","RH2","UH","TC500","GPH500","CLDFRA_TOTAL","DELTA_RAIN","type"]) for f in all_files)
             concatenated_df = pd.concat(df_from_each_file, ignore_index=True)
-            concatenated_df = concatenated_df.sample(frac=0.5)
             dataset = concatenated_df.values
         except Exception as e:
             print("There are no csv file",str(e))
@@ -74,12 +73,16 @@ def main():
 
         y = dataset[:, 10]
         X = dataset[:, 0:10]
+        rus = RandomOverSampler(random_state=0)
+        X, y = rus.fit_resample(X, y)
+        # rus = RandomUnderSampler(random_state=0)
+        # X, y = rus.fit_resample(X, y)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
         y_train_cat = to_categorical(y_train,num_classes=countLabel)
         y_test_cat  = to_categorical(y_test,num_classes=countLabel)
         print("-------------------------------------------------------------\n")
         #fit
-        history = model.fit(X_train,y_train_cat,validation_data=(X_test,y_test_cat),epochs=30,batch_size=256,shuffle=True,verbose=1,class_weight=class_weight)
+        history = model.fit(X_train,y_train_cat,validation_data=(X_test,y_test_cat),epochs=30,batch_size=256,shuffle=True,verbose=1)
         print("-------------------------------------------------------------\n")
         # Plot training & validation accuracy values
         plt.plot(history.history['acc'])
@@ -97,7 +100,7 @@ def main():
         plt.xlabel('Epoch')
         plt.legend(['Train', 'Test'], loc='upper left')
         plt.show()
-        model.save('weatherML1.h5')
+        model.save('weatherML2.h5')
     else:
         print("h5 file exists")
         try:
@@ -106,7 +109,7 @@ def main():
             print("Error DB", str(e))
             sys.exit(1)
         try:
-            model = load_model('weatherML1.h5')
+            model = load_model('weatherML2.h5')
         except Exception as e:
             print("There are no h5 file", str(e))
             sys.exit(1)
@@ -119,8 +122,8 @@ def main():
         except Exception as e:
             print("There are no csv file")
             sys.exit(1)
-        lng = dataset[:, 0]
-        lat = dataset[:, 1]
+        lng=dataset[:,0]
+        lat=dataset[:,1]
         y1 = dataset[:, 12]
         X1 = dataset[:, 2:12]
         y_cat1 = to_categorical(y1, num_classes=countLabel)
@@ -128,13 +131,14 @@ def main():
         print(" ")
         print('test loss, test acc:', results)
         prediction = model.predict_classes(X1, verbose=1)
-        with open(outPrediction + "/out1.csv", "w") as f:
-            fieldnames = ["lon", "lat", "class_id"]
+        with open(outPrediction+"/out2.csv", "w") as f:
+            fieldnames = ["lon", "lat","class_id"]
             writer1 = csv.DictWriter(f, extrasaction='ignore', fieldnames=fieldnames)
             writer1.writeheader()
             for i in range(len(prediction)):
                 print(prediction[i], y_cat1[i])
-                writer1.writerow({"lon": lng[i], "lat": lat[i], "class_id": prediction[i]})
+                if prediction[i]!=0:
+                    writer1.writerow({"lon": lng[i],"lat": lat[i],"class_id":prediction[i]})
 
 if __name__ == "__main__":
     main()
