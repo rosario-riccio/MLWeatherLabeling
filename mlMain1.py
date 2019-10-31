@@ -25,7 +25,7 @@ src1 = "/home/rosario/Scrivania/MLcsvPrediction"
 #path where there will be csv files prediction
 outPrediction = "/home/rosario/Scrivania/MLcsvOUTPrediction"
 #if flag is true,the h5 file doesn't exist, then it'll be created
-flag = False
+flag = True
 
 def main():
     global flag
@@ -134,7 +134,8 @@ def main():
             writer1.writeheader()
             for i in range(len(prediction)):
                 print(prediction[i], y_cat1[i])
-                writer1.writerow({"lon": lng[i], "lat": lat[i], "class_id": prediction[i]})
+                if prediction[i] != 0:
+                    writer1.writerow({"lon": lng[i], "lat": lat[i], "class_id": prediction[i]})
 
 if __name__ == "__main__":
     main()
