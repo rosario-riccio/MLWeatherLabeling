@@ -13,5 +13,6 @@ Configuration
 7. pip install -r requirements.txt
 8. insert your path where there are csv files for training set in mlMain1.py and mlMain2.py: src = ""
 9. insert your path where there are csv files for prediction set in mlMain1.py and mlMain2.py: src1 = ""
-10. python mlMain1.py : this version creates a sample of 50% of the data set; another it can apply specific weight to each class
-11. python mlMain2.py this version uses a oversampling RandomOverSampler by using library imblearn (python's component)
+10. insert yout path where there will be csv files prediction in mlMain1.py and mlMain2.py outPrediction = ""
+11. python mlMain1.py : this version creates a sample of 50% of the data set; another it can apply specific weight to each class
+12. python mlMain2.py this version uses a oversampling RandomOverSampler by using library imblearn (python's component)
