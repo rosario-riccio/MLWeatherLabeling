@@ -18,3 +18,4 @@ Configuration
 12. python mlMain2.py this version uses a oversampling RandomOverSampler by using library imblearn (python's component)
 13. flag1 in mlMain1.py and mlMain2.py:True if h5 file existed, otherwise False.
 14. flag2 in mlMain1.py and mlMain2.py: if flag1 is True, you set flag2 to True for evaluation, otherwise prediction.
+15. python mlMain1.py or python mlMain2.py 
