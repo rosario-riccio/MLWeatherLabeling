@@ -24,15 +24,16 @@ src = "/home/rosario/Scrivania/MLcsvTraining"
 src1 = "/home/rosario/Scrivania/MLcsvEvaluation"
 #path where there are csv files for prediction
 src2 = "/home/rosario/Scrivania/MLcsvPrediction"
-#path where there will be csv files prediction
-outPrediction = "/home/rosario/Scrivania/MLcsvOUTPrediction"
-#if flag is true,the h5 file doesn't exist, then it'll be created
-flag = True
+#if flag is true the h5 file exists, otherwise it'll be created
+flag1 = True
+#if flag is true the evaluation, otherwise prediction
+flag2 = False
 
 def main():
-    global flag
+    global flag1
+    global flag2
     class_weight = {}
-    if(flag):
+    if not flag1:
         print("h5 file doesn't exist")
         try:
             countLabel = managedb.countLabelDB()
@@ -115,32 +116,52 @@ def main():
         except Exception as e:
             print("There are no h5 file", str(e))
             sys.exit(1)
-        try:
-            all_files = glob.glob(src1 + "/*.csv")
-            print(all_files)
-            df_from_each_file = (pd.read_csv(f,usecols=["LONGITUDE","LATITUDE","T2C","SLP", "WSPD10","WDIR10","RH2","UH","TC500","GPH500","CLDFRA_TOTAL","DELTA_RAIN","type"]) for f in all_files)
-            concatenated_df = pd.concat(df_from_each_file, ignore_index=True)
-            dataset = concatenated_df.values
-        except Exception as e:
-            print("There are no csv file")
-            sys.exit(1)
-        lng=dataset[:,0]
-        lat=dataset[:,1]
-        y1 = dataset[:, 12]
-        X1 = dataset[:, 2:12]
-        y_cat1 = to_categorical(y1, num_classes=countLabel)
-        results = model.evaluate(X1, y_cat1, verbose=1, batch_size=128)
-        print(" ")
-        print('test loss, test acc:', results)
-        prediction = model.predict_classes(X1, verbose=1)
-        with open(outPrediction+"/out2.csv", "w") as f:
-            fieldnames = ["lon", "lat","class_id"]
-            writer1 = csv.DictWriter(f, extrasaction='ignore', fieldnames=fieldnames)
-            writer1.writeheader()
-            for i in range(len(prediction)):
-                print(prediction[i], y_cat1[i])
-                if prediction[i]!=0:
-                    writer1.writerow({"lon": lng[i],"lat": lat[i],"class_id":prediction[i]})
+        if flag2:
+            #evaluation
+            try:
+                all_files = glob.glob(src1 + "/*.csv")
+                print(all_files)
+                df_from_each_file = (pd.read_csv(f,usecols=["T2C","SLP", "WSPD10","WDIR10","RH2","UH","TC500","GPH500","CLDFRA_TOTAL","DELTA_RAIN","type"]) for f in all_files)
+                concatenated_df = pd.concat(df_from_each_file, ignore_index=True)
+                dataset = concatenated_df.values
+            except Exception as e:
+                print("There are no csv file")
+                sys.exit(1)
+            y1 = dataset[:, 10]
+            X1 = dataset[:, 0:10]
+            y_cat1 = to_categorical(y1, num_classes=countLabel)
+            results = model.evaluate(X1, y_cat1, verbose=1, batch_size=128)
+            print(" ")
+            print('test loss, test acc:', results)
+        else:
+            # prediction
+            try:
+                all_files = glob.glob(src2 + "/*.csv")
+                if len(all_files) != 1:
+                    print("There are too many files or zero file")
+                    return
+                print(all_files)
+                df_from_each_file = (pd.read_csv(f,usecols=["LONGITUDE", "LATITUDE", "T2C", "SLP", "WSPD10", "WDIR10", "RH2","UH", "TC500", "GPH500", "CLDFRA_TOTAL", "DELTA_RAIN", "type"]) for f in all_files)
+                concatenated_df = pd.concat(df_from_each_file, ignore_index=True)
+                dataset = concatenated_df.values
+            except Exception as e:
+                print("There are no csv file")
+                sys.exit(1)
+            lng = dataset[:, 0]
+            lat = dataset[:, 1]
+            y1 = dataset[:, 12]
+            X1 = dataset[:, 2:12]
+            y_cat1 = to_categorical(y1, num_classes=countLabel)
+            prediction = model.predict_classes(X1, verbose=1)
+            with open(src2 + "/out2.csv", "w") as f:
+                fieldnames = ["lon", "lat", "class_id"]
+                writer1 = csv.DictWriter(f, extrasaction='ignore', fieldnames=fieldnames)
+                writer1.writeheader()
+                for i in range(len(prediction)):
+                    print(prediction[i], y_cat1[i])
+                    if prediction[i] != 0:
+                        writer1.writerow({"lon": lng[i], "lat": lat[i], "class_id": prediction[i]})
+
 
 if __name__ == "__main__":
     main()
