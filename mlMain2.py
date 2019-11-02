@@ -19,11 +19,11 @@ from sklearn.utils.class_weight import compute_class_weight
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
 #path where there are csv files for training/test
-src = "/home/rosario/Scrivania/MLcsvTraining"
+src = "<>"
 #path where there are csv files for evaluate/prediction
-src1 = "/home/rosario/Scrivania/MLcsvEvaluation"
+src1 = "<>"
 #path where there are csv files for prediction
-src2 = "/home/rosario/Scrivania/MLcsvPrediction"
+src2 = "<>"
 #if flag is true the h5 file exists, otherwise it'll be created
 flag1 = True
 #if flag is true the evaluation, otherwise prediction
