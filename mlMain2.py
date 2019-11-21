@@ -1,3 +1,4 @@
+#mlMain2.py
 import numpy as np
 import csv
 from keras.models import Sequential
@@ -18,12 +19,15 @@ from keras.optimizers import Adam
 from sklearn.utils.class_weight import compute_class_weight
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
+from urllib.parse import urlparse
 #path where there are csv files for training/test
-src = "<>"
+src = "/home/rosario/Scrivania/MLcsvTraining"
 #path where there are csv files for evaluate/prediction
-src1 = "<>"
+src1 = "/home/rosario/Scrivania/MLcsvEvaluation"
 #path where there are csv files for prediction
-src2 = "<>"
+src2 = "/home/rosario/Scrivania/MLcsvPrediction"
+#path where there will be csv files of prediction
+src3 = "/home/rosario/Scrivania/out"
 #if flag is true the h5 file exists, otherwise it'll be created
 flag1 = True
 #if flag is true the evaluation, otherwise prediction
@@ -80,7 +84,7 @@ def main():
         X, y = rus.fit_resample(X, y)
         # rus = RandomUnderSampler(random_state=0)
         # X, y = rus.fit_resample(X, y)
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
         y_train_cat = to_categorical(y_train,num_classes=countLabel)
         y_test_cat  = to_categorical(y_test,num_classes=countLabel)
         print("-------------------------------------------------------------\n")
@@ -137,30 +141,32 @@ def main():
             # prediction
             try:
                 all_files = glob.glob(src2 + "/*.csv")
-                if len(all_files) != 1:
-                    print("There are too many files or zero file")
-                    return
                 print(all_files)
-                df_from_each_file = (pd.read_csv(f,usecols=["LONGITUDE", "LATITUDE", "T2C", "SLP", "WSPD10", "WDIR10", "RH2","UH", "TC500", "GPH500", "CLDFRA_TOTAL", "DELTA_RAIN", "type"]) for f in all_files)
-                concatenated_df = pd.concat(df_from_each_file, ignore_index=True)
-                dataset = concatenated_df.values
+                for file in all_files:
+                    print(file)
+                    pdfiles = pd.read_csv(file,usecols=["LONGITUDE", "LATITUDE", "T2C", "SLP", "WSPD10", "WDIR10", "RH2","UH", "TC500", "GPH500", "CLDFRA_TOTAL", "DELTA_RAIN", "type"])
+                    dataset = pdfiles.values
+                    lng = dataset[:, 0]
+                    lat = dataset[:, 1]
+                    y1 = dataset[:, 12]
+                    X1 = dataset[:, 2:12]
+                    y_cat1 = to_categorical(y1, num_classes=countLabel)
+                    pre, ext = os.path.splitext(os.path.basename(urlparse(file).path))
+                    csvfile = "out2_" + pre + ".csv"
+                    print(csvfile)
+                    prediction = model.predict_classes(X1, verbose=1)
+                    with open(src3 + "/" + csvfile, "w") as f:
+                        fieldnames = ["lon", "lat", "class_id"]
+                        writer1 = csv.DictWriter(f, extrasaction='ignore', fieldnames=fieldnames)
+                        writer1.writeheader()
+                        for i in range(len(prediction)):
+                            print(prediction[i], y_cat1[i])
+                            if prediction[i] != 0:
+                                writer1.writerow({"lon": lng[i], "lat": lat[i], "class_id": prediction[i]})
             except Exception as e:
-                print("There are no csv file")
+                print(str(e))
                 sys.exit(1)
-            lng = dataset[:, 0]
-            lat = dataset[:, 1]
-            y1 = dataset[:, 12]
-            X1 = dataset[:, 2:12]
-            y_cat1 = to_categorical(y1, num_classes=countLabel)
-            prediction = model.predict_classes(X1, verbose=1)
-            with open(src2 + "/out2.csv", "w") as f:
-                fieldnames = ["lon", "lat", "class_id"]
-                writer1 = csv.DictWriter(f, extrasaction='ignore', fieldnames=fieldnames)
-                writer1.writeheader()
-                for i in range(len(prediction)):
-                    print(prediction[i], y_cat1[i])
-                    if prediction[i] != 0:
-                        writer1.writerow({"lon": lng[i], "lat": lat[i], "class_id": prediction[i]})
+
 
 
 if __name__ == "__main__":
