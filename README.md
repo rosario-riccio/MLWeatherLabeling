@@ -18,6 +18,7 @@ Configuration
 8. insert your path where there are csv files for training set in mlMain1.py and mlMain2.py: src = "" 
 9. insert your path where there are csv files for evalutation set in mlMain1.py and mlMain2.py: src1 = "" 
 10. insert your path where there are csv files for prediction set in mlMain1.py and mlMain2.py: src2 = "" 
-11. flag1 in mlMain1.py and mlMain2.py:True if h5 file existed, otherwise False.
-12. flag2 in mlMain1.py and mlMain2.py: if flag1 is True, you set flag2 to True for evaluation, otherwise prediction
-13. python mlMain1.py or python mlMain2.py 
+11. insert your path where there will be prediction csv in mlMain1.py and mlMain2.py: src3 = "" 
+12. flag1 in mlMain1.py and mlMain2.py:True if h5 file existed, otherwise False.
+13. flag2 in mlMain1.py and mlMain2.py: if flag1 is True, you set flag2 to True for evaluation, otherwise prediction
+14. python mlMain1.py or python mlMain2.py 
